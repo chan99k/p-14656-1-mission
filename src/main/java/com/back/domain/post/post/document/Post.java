@@ -19,8 +19,8 @@ public class Post {
 	/**
 	 * <h3>Elasticsearch Keyword 타입 매핑 개요</h3>
 	 * <p>
-	 *   해당 필드를 Elasticsearch의 <code>Keyword</code> 타입으로 지정합니다.
-	 *   분석기를 거치지 않는 정적 텍스트 데이터를 처리하는 데 최적화되어 있습니다.
+	 * 해당 필드를 Elasticsearch의 <code>Keyword</code> 타입으로 지정합니다.
+	 * 분석기를 거치지 않는 정적 텍스트 데이터를 처리하는 데 최적화되어 있습니다.
 	 * </p>
 	 *
 	 * <h4>1. 주요 특징</h4>
@@ -63,4 +63,24 @@ public class Post {
 		format = DateFormat.date_time
 	)
 	private OffsetDateTime lastModifiedAt;
+
+	public Post(String title, String content, String author) {
+		this.title = title;
+		this.content = content;
+		this.author = author;
+		this.createdAt = OffsetDateTime.now();
+		this.lastModifiedAt = OffsetDateTime.now();
+	}
+
+	@Override
+	public String toString() {
+		return "Post{" +
+			"id='" + id + '\'' +
+			", title='" + title + '\'' +
+			", content='" + content + '\'' +
+			", author='" + author + '\'' +
+			", createdAt=" + createdAt +
+			", lastModifiedAt=" + lastModifiedAt +
+			'}';
+	}
 }

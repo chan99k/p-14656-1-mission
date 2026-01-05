@@ -4,6 +4,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.back.domain.post.post.document.Post;
 import com.back.domain.post.post.service.PostService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,14 @@ public class BaseInitData {
 
 	private void work1() {
 		log.debug("Post entity 개수: {}", postService.count());
+		if (postService.count() == 0) {
+			for (int i = 1; i <= 10; i++) {
+				String title = "Sample Post Title " + i;
+				String content = "This is the content of sample post number " + i + ".";
+				String author = "Author" + i;
+				Post post = postService.create(title, content, author);
+				log.debug("Created Post: {}", post);
+			}
+		}
 	}
 }
