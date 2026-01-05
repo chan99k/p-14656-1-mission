@@ -1,3 +1,17 @@
 spring:
   application:
     name: es-mission
+  profiles:
+    active: dev
+  output:
+    ansi:
+      enabled: ALWAYS
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+logging:
+  level:
+    com:
+      back: debug
+server:
+  port: 8080

@@ -1,0 +1,9 @@
+services:
+  elasticsearch: #  Elasticsearch 서비스 구성
+    build: .
+    image: elasticsearch:nori
+    ports:
+      - "9200:9200" #   포트 9200 노출
+    environment:
+      - discovery.type=single-node # discovery.type=single-node: 단일 노드 모드
+      - xpack.security.enabled=false # xpack.security.enabled=false: 보안 기능 비활성화
