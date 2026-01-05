@@ -34,13 +34,18 @@ public class PostService {
 
 	public Post update(String id, String title, String content) {
 		Post post = findById(id);
-		if (title != null){
+		if (title != null) {
 			post.setTitle(title);
 		}
-		if (content != null){
+		if (content != null) {
 			post.setContent(content);
 		}
 		post.setLastModifiedAt(java.time.OffsetDateTime.now());
 		return postRepository.save(post);
+	}
+
+	public void delete(String id) {
+		Post post = findById(id);
+		postRepository.delete(post);
 	}
 }
