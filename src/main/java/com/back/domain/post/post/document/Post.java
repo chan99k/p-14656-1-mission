@@ -2,7 +2,10 @@ package com.back.domain.post.post.document;
 
 import java.time.OffsetDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -10,9 +13,44 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import lombok.Data;
 
+/**
+ * <h3>Persistable 인터페이스 구현이 필요한 이유</h3>
+ * <p>
+ *   Spring Data Elasticsearch에서 엔티티의 "신규 상태(New State)"를 정확히 제어하기 위해
+ *   <code>Persistable</code> 인터페이스를 구현합니다.
+ * </p>
+ *
+ * <h4>1. JPA와 Elasticsearch의 상태 관리 차이</h4>
+ * <ul>
+ *     <li>
+ *         <strong>JPA:</strong> 영속성 컨텍스트(Persistence Context)가 엔티티의 상태
+ *         (<code>transient</code>, <code>managed</code>, <code>detached</code> 등)를 직접 추적하고 관리합니다.
+ *     </li>
+ *     <li>
+ *         <strong>Elasticsearch:</strong> 별도의 영속성 컨텍스트가 존재하지 않습니다.
+ *         따라서 프레임워크는 엔티티 저장 시 <code>isNew()</code> 메서드의 반환값을 기준으로
+ *         새 문서 생성(Index)과 기존 문서 수정(Update)을 구분합니다.
+ *     </li>
+ * </ul>
+ *
+ * <h4>2. 데이터 감사(Auditing)와 @CreatedDate</h4>
+ * <p>
+ *   <code>@CreatedDate</code> 어노테이션이 올바르게 동작하려면 프레임워크가 해당 엔티티를
+ *   신규 상태로 명확히 인식해야 합니다. <code>isNew()</code>가 적절히 구현되지 않으면
+ *   생성 날짜가 채워지지 않는 등 Auditing 기능이 누락될 수 있습니다.
+ * </p>
+ *
+ * <h4>3. 사용자 정의 ID(Custom ID) 지원</h4>
+ * <p>
+ *   기본 <code>isNew()</code> 로직은 ID 필드의 <code>null</code> 여부만 확인합니다.
+ *   하지만 애플리케이션에서 <strong>직접 ID를 할당하여 저장하는 경우</strong>, ID가 존재함에도 불구하고
+ *   새 문서인 경우가 발생합니다. 이를 위해 생성일(<code>createdAt</code>) 필드의 <code>null</code>
+ *   여부를 함께 확인하여 신규 문서임을 증명해야 합니다.
+ * </p>
+ */
 @Data
 @Document(indexName = "posts")
-public class Post {
+public class Post implements Persistable<String> {
 	@Id
 	private String id;
 	@Field(type = FieldType.Text)
@@ -59,12 +97,14 @@ public class Post {
 		type = FieldType.Date,
 		format = DateFormat.date_time
 	)
+	@CreatedDate
 	private OffsetDateTime createdAt;
 
 	@Field(
 		type = FieldType.Date,
 		format = DateFormat.date_time
 	)
+	@LastModifiedDate
 	private OffsetDateTime lastModifiedAt;
 
 	public Post(String title, String content, String author) {
@@ -85,5 +125,14 @@ public class Post {
 			", createdAt=" + createdAt +
 			", lastModifiedAt=" + lastModifiedAt +
 			'}';
+	}
+
+	/**
+	 * ID가 null이거나 날짜 필드가 모두 null이면 새 엔티티로 판단
+	 */
+	@Override
+	public boolean isNew() {
+		return id == null || (createdAt == null && lastModifiedAt == null);
+
 	}
 }
