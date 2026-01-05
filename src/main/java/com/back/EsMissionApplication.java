@@ -7,7 +7,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 
 @SpringBootApplication
 @EnableElasticsearchRepositories
-@EnableElasticsearchAuditing
+@EnableElasticsearchAuditing(dateTimeProviderRef = "dateTimeProvider")
 public class EsMissionApplication {
 
 	public static void main(String[] args) {
