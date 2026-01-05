@@ -22,6 +22,8 @@ public class BaseInitData {
 		return args -> {
 			// log.debug("ApplicationRunner 빈은 스프링에 등록되면 자동으로 실행됩니다");
 			work1();
+			work2();
+			work3();
 		};
 	}
 
@@ -39,10 +41,17 @@ public class BaseInitData {
 		}
 	}
 
-	private void work2(){
+	private void work2() {
 		log.debug("기존 Post 전체 조회");
 		for (Post post : postService.findAll()) {
 			log.debug("Existing Post: {}", post);
+		}
+	}
+
+	private void work3() {
+		log.debug("Post 단건 조회");
+		for (Post post : postService.findAll()) {
+			log.debug("조회된 Post: {}", post);
 		}
 	}
 }
